@@ -1,1 +1,67 @@
-package server
+package main
+
+import (
+	"log"
+	"os"
+	"where_my_pet_at/server/Controllers"
+	"where_my_pet_at/server/Models"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
+)
+
+func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %s", err)
+	}
+
+	// Retrieve database credentials from environment variables
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("MYSQL_USER")
+	dbPass := os.Getenv("MYSQL_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+
+	// Initialize database connection
+	db, err := gorm.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?charset=utf8&parseTime=True&loc=Local")
+	if err != nil {
+		log.Fatalf("Error connecting to database: %s", err)
+	}
+
+	defer db.Close()
+
+	// Migrate database schema
+	db.AutoMigrate(&Models.Pet{})
+	db.AutoMigrate(&Models.User{})
+	db.AutoMigrate(&Models.Characteristic{})
+	db.AutoMigrate(&Models.Image{})
+	db.AutoMigrate(&Models.Location{})
+	db.AutoMigrate(&Models.UserPet{})
+	db.AutoMigrate(&Models.PetLocation{})
+	db.AutoMigrate(&Models.PetImage{})
+	db.AutoMigrate(&Models.PetLocation{})
+	db.AutoMigrate(&Models.PetCharacteristic{})
+
+	// Initialize PetController with database connection
+	petController := &Controllers.PetController{DB: db}
+
+	// Initialize Gin router
+	router := gin.Default()
+
+	router.Use(cors.Default())
+
+	// Define API routes
+	router.GET("/pets", petController.Index)
+	router.POST("/pets", petController.Store)
+	router.PUT("/pets/:id", petController.Update)
+	router.GET("/pets/:id", petController.Get)
+	router.DELETE("/pets/:id", petController.Delete)
+
+	// Start server
+	router.Run(":8080")
+}
