@@ -37,7 +37,9 @@ const PetCard = (petProp: Pet) => {
 				</Typography>
 				<List>
 					<ListItem>
-						<ListItemText primary={`Idade: ${pet.Age}`} />
+						<ListItemText>
+						Idade: {pet.Age == 1 ? `${pet.Age} ano` : `${pet.Age} anos`}
+						</ListItemText>
 					</ListItem>
 					<ListItem>
 						<ListItemText primary={`Descrição: ${pet.Description}`} />
