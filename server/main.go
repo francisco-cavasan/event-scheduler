@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"where_my_pet_at/server/Controllers"
-	"where_my_pet_at/server/Models"
+	"where_my_pet_at/server/Database"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,19 +33,9 @@ func main() {
 		log.Fatalf("Error connecting to database: %s", err)
 	}
 
-	defer db.Close()
+	Database.MigrateDatabaseSchema(db)
 
-	// Migrate database schema
-	db.AutoMigrate(&Models.Pet{})
-	db.AutoMigrate(&Models.User{})
-	db.AutoMigrate(&Models.Characteristic{})
-	db.AutoMigrate(&Models.Image{})
-	db.AutoMigrate(&Models.Location{})
-	db.AutoMigrate(&Models.UserPet{})
-	db.AutoMigrate(&Models.PetLocation{})
-	db.AutoMigrate(&Models.PetImage{})
-	db.AutoMigrate(&Models.PetLocation{})
-	db.AutoMigrate(&Models.PetCharacteristic{})
+	defer db.Close()
 
 	// Initialize PetController with database connection
 	petController := &Controllers.PetController{DB: db}
@@ -61,6 +51,7 @@ func main() {
 	router.PUT("/pets/:id", petController.Update)
 	router.GET("/pets/:id", petController.Get)
 	router.DELETE("/pets/:id", petController.Delete)
+	router.POST("/pets/found", petController.AddPetFoundLocation)
 
 	// Start server
 	router.Run(":8080")

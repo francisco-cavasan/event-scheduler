@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Pet } from '@/types/Pet';
 import PetCard from '@/Components/PetCard';
 
 const Main = () => {
@@ -16,8 +15,8 @@ const Main = () => {
 		fetchData();
 	}, []);
 	return (
-		<div>
-			{data.map((pet: Pet) => (
+		<div className='container px-6 py-3 mx-auto flex flex-wrap gap-10'>
+			{data.map((pet) => (
 				<PetCard key={pet.Id} pet={pet} />
 			))}
 		</div>

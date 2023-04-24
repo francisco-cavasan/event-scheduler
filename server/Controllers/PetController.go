@@ -77,7 +77,7 @@ func (pc *PetController) Delete(c *gin.Context) {
 }
 
 func (pc *PetController) AddPetFoundLocation(c *gin.Context) {
-	id := c.Param("id")
+	id := c.PostForm("id")
 	var pet Models.Pet
 
 	if err := pc.DB.First(&pet, id).Error; err != nil {
@@ -102,6 +102,7 @@ func (pc *PetController) AddPetFoundLocation(c *gin.Context) {
 	}
 
 	// Send an email to the pet owner
+
 	Services.Handle("Your pet has been found!", pet.Owner.Email)
 
 	c.JSON(http.StatusOK, gin.H{"message": "location added to pet"})
