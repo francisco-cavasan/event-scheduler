@@ -9,7 +9,8 @@ type Pet struct {
 	Age         string
 	LostDate    string
 	FoundDate   string
-	Owner       User
+	OwnerID     uint
+	Owner       User `gorm:"references:OwnerID"`
 	Image_url   string
 	// Images      []Image
 }

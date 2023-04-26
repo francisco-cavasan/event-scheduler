@@ -14,10 +14,14 @@ type PetController struct {
 	DB *gorm.DB
 }
 
+type PetFoundPayload struct {
+	Id uint `json:"id"`
+}
+
 // Index retrieves a list of all pets
 func (pc *PetController) Index(c *gin.Context) {
 	var pets []Models.Pet
-	pc.DB.Find(&pets)
+	pc.DB.Preload("Owner").Find(&pets)
 	c.JSON(http.StatusOK, pets)
 }
 
@@ -77,33 +81,38 @@ func (pc *PetController) Delete(c *gin.Context) {
 }
 
 func (pc *PetController) AddPetFoundLocation(c *gin.Context) {
-	id := c.PostForm("id")
+	// Get the pet ID from the request
+	var payload PetFoundPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	var pet Models.Pet
 
-	if err := pc.DB.First(&pet, id).Error; err != nil {
+	if err := pc.DB.Preload("Owner").First(&pet, payload.Id).Error; err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "pet not found"})
 		return
 	}
 
 	// Parse request body into location object
-	var location Models.Location
-	if err := c.BindJSON(&location); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// var location Models.Location
+	// if err := c.BindJSON(&location); err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	// Create a new pet location record
-	petLocation := Models.PetLocation{Pet: pet, Location: location}
+	// petLocation := Models.PetLocation{Pet: pet, Location: location}
 
 	// Save the new pet location record to the database
-	if err := pc.DB.Create(&petLocation).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// if err := pc.DB.Create(&petLocation).Error; err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	// Send an email to the pet owner
-
-	Services.Handle("Your pet has been found!", pet.Owner.Email)
+	Services.Handle(pet.Name, pet.Owner.Email)
 
 	c.JSON(http.StatusOK, gin.H{"message": "location added to pet"})
 }

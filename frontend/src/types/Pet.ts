@@ -1,5 +1,5 @@
 export type Pet = {
-    Id: number;
+    ID: number;
     Name: string;
     Age: number;
     Image_url: string;

@@ -14,8 +14,8 @@ import axios from 'axios';
 
 const onPetFoundHandler = async (petId) => {
 	await axios.post(`http://localhost:8080/pets/found`, {
-    id: petId
-  });
+		id: petId,
+	});
 };
 
 const PetCard = (petProp: Pet) => {
@@ -38,7 +38,7 @@ const PetCard = (petProp: Pet) => {
 				<List>
 					<ListItem>
 						<ListItemText>
-						Idade: {pet.Age == 1 ? `${pet.Age} ano` : `${pet.Age} anos`}
+							Idade: {pet.Age == 1 ? `${pet.Age} ano` : `${pet.Age} anos`}
 						</ListItemText>
 					</ListItem>
 					<ListItem>
@@ -48,7 +48,12 @@ const PetCard = (petProp: Pet) => {
 						<ListItemText primary={`Localização: ${pet.Location}`} />
 					</ListItem>
 					<ListItem>
-						<Button variant='outlined' onClick={(e) => {onPetFoundHandler(pet.Id)}}>
+						<Button
+							variant='outlined'
+							onClick={(e) => {
+								onPetFoundHandler(pet.ID);
+							}}
+						>
 							Marcar como encontrado
 						</Button>
 					</ListItem>

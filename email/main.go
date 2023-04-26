@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,19 +13,9 @@ import (
 	mail "github.com/xhit/go-simple-mail/v2"
 )
 
-var htmlBody = `
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <title>Seu pet foi encontrado!</title>
-</head>
-<body>
-   <p>Temos uma boa notícia, seu pet foi encontrado!!</p>
-</body>
-`
-
 type Post struct {
-	address string
+	Address string `json:"address" binding:"required"`
+	PetName string `json:"petName" binding:"required"`
 }
 
 func main() {
@@ -59,25 +50,30 @@ func main() {
 	// Define API routes
 	router.POST("/send", func(c *gin.Context) {
 
+		// Bind JSON body to Post struct
 		var post Post
-
 		err := c.BindJSON(&post)
-
 		if err != nil {
-			fmt.Println("error")
-			fmt.Println(err)
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
 		}
+
+		htmlBody, err := os.ReadFile("template.html")
+		stringHtmlBody := string(htmlBody)
+
+		stringHtmlBody = strings.Replace(stringHtmlBody, "{{pet_name}}", post.PetName, 1)
+
+		fmt.Println("send email to", post.Address, "with body", stringHtmlBody)
 
 		email := mail.NewMSG()
 		email.SetFrom("From Me <me@host.com>")
-		//todo: change to post.address
-		email.AddTo("temp@email.com")
+		email.AddTo(post.Address)
 		email.SetSubject("Pet encontrado!")
-		email.SetBody(mail.TextHTML, htmlBody)
+		email.SetBody(mail.TextHTML, stringHtmlBody)
 
 		err = email.Send(smtpClient)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf(err.Error())
 		}
 		fmt.Println("Email Sent Successfully!")
 	})
