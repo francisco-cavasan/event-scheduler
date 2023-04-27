@@ -1,21 +1,26 @@
 package Middlewares
 
 import (
+	"errors"
 	"net/http"
-
-	"where_my_pet_at/server/utils/Token"
-
-	"github.com/gin-gonic/gin"
+	"where_my_pet_at/server/Responses"
+	"where_my_pet_at/server/Services"
 )
 
-func JwtAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		err := Token.TokenValid(c)
+func SetMiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next(w, r)
+	}
+}
+
+func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := Services.TokenValid(r)
 		if err != nil {
-			c.String(http.StatusUnauthorized, "Unauthorized")
-			c.Abort()
+			Responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 			return
 		}
-		c.Next()
+		next(w, r)
 	}
 }

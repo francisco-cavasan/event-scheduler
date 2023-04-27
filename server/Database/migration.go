@@ -5,6 +5,7 @@ import (
 	"where_my_pet_at/server/Models"
 
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // MigrateDatabaseSchema migrates the database schema
@@ -22,10 +23,13 @@ func MigrateDatabaseSchema(db *gorm.DB) {
 	db.AutoMigrate(&Models.PetCharacteristic{})
 
 	//create data only if database is empty
+	password1, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	password2, _ := bcrypt.GenerateFromPassword([]byte("teste"), bcrypt.DefaultCost)
+	password3, _ := bcrypt.GenerateFromPassword([]byte("mais_um"), bcrypt.DefaultCost)
 	users := []Models.User{
-		{Name: "admin", Password: "admin", Email: "admin@localhost"},
-		{Name: "teste", Password: "teste", Email: "teste@localhost"},
-		{Name: "mais um", Password: "mais um", Email: "maisum@localhost"},
+		{Name: "admin", Password: string(password1), Email: "admin@localhost"},
+		{Name: "teste", Password: string(password2), Email: "teste@localhost"},
+		{Name: "mais um", Password: string(password3), Email: "maisum@localhost"},
 	}
 
 	var usersCount int
@@ -37,7 +41,6 @@ func MigrateDatabaseSchema(db *gorm.DB) {
 			db.Create(&user)
 			users[index] = user
 		}
-
 	}
 
 	var petsCount int

@@ -2,87 +2,62 @@ package Controllers
 
 import (
 	"net/http"
-
 	"where_my_pet_at/server/Models"
-	"where_my_pet_at/server/utils/Token"
+	"where_my_pet_at/server/Services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthController struct {
 	DB *gorm.DB
 }
 
-var sampleSecretKey = []byte("SecretYouShouldHide")
-
-type Credentials struct {
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-}
-
-func (ac *AuthController) Register(c *gin.Context) {
-	var creds Credentials
-
-	if err := c.ShouldBindJSON(&creds); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	u := Models.User{}
-
-	u.Email = creds.Email
-	u.Password = creds.Password
-
-	_, err := u.SaveUser()
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+type LoginPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
-	var input Credentials
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	u := Models.User{}
-
-	u.Email = input.Email
-	u.Password = input.Password
-
-	token, err := Models.LoginCheck(u.Email, u.Password)
+	var loginPayload LoginPayload
+	err := c.BindJSON(&loginPayload)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or password is incorrect."})
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	user := Models.User{}
+
+	err = ac.DB.Debug().Model(Models.User{}).Where("email = ?", loginPayload.Email).Take(&user).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	token, err := ac.SignIn(user.Email, loginPayload.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func CurrentUser(c *gin.Context) {
+func (ac *AuthController) SignIn(email string, password string) (string, error) {
 
-	user_id, err := Token.ExtractTokenID(c)
+	var err error
 
+	user := Models.User{}
+
+	err = ac.DB.Debug().Model(Models.User{}).Where("email = ?", email).Take(&user).Error
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		return "", err
 	}
 
-	u, err := Models.GetUserByID(user_id)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	err = Models.VerifyPassword(user.Password, password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success", "data": u})
-}
+	token, err := Services.CreateToken(uint32(user.ID))
 
-func (ac *AuthController) Logout(c *gin.Context) {
+	return token, err
 }

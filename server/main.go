@@ -5,7 +5,6 @@ import (
 	"os"
 	"where_my_pet_at/server/Controllers"
 	"where_my_pet_at/server/Database"
-	"where_my_pet_at/server/Middlewares"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -54,12 +53,7 @@ func main() {
 	router.GET("/pets/:id", petController.Get)
 	router.DELETE("/pets/:id", petController.Delete)
 	router.POST("/pets/found", petController.AddPetFoundLocation)
-	router.POST("/register", authController.Register)
 	router.POST("/login", authController.Login)
-
-	protected := router.Group("/api/admin")
-	protected.Use(Middlewares.JwtAuthMiddleware())
-	protected.GET("/user", Controllers.CurrentUser)
 
 	// Start server
 	router.Run(":8080")
