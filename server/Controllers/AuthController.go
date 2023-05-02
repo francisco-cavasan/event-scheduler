@@ -60,3 +60,42 @@ func (ac *AuthController) SignIn(email string, password string) (string, error) 
 
 	return token, err
 }
+
+func (ac *AuthController) Logout(c *gin.Context) {
+	var loginPayload LoginPayload
+	err := c.BindJSON(&loginPayload)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	user := Models.User{}
+
+	err = ac.DB.Debug().Model(Models.User{}).Where("email = ?", loginPayload.Email).Take(&user).Error
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	token, err := ac.SignIn(user.Email, loginPayload.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (ac *AuthController) Register(c *gin.Context) {
+	var loginPayload LoginPayload
+	err := c.BindJSON(&loginPayload)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	user := Models.User{}
+
+	token, err := ac.SignIn(user.Email, loginPayload.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}

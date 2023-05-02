@@ -54,6 +54,8 @@ func main() {
 	router.DELETE("/pets/:id", petController.Delete)
 	router.POST("/pets/found", petController.AddPetFoundLocation)
 	router.POST("/login", authController.Login)
+	router.POST("/logout", authController.Logout)
+	router.POST("/register", authController.Register)
 
 	// Start server
 	router.Run(":8080")

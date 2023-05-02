@@ -16,7 +16,7 @@ const Main = () => {
 		fetchData();
 	}, []);
 	return (
-		<div className='container px-6 py-3 mx-auto flex flex-wrap gap-10'>
+		<div className='container px-6 justify-center py-3 mx-auto flex flex-wrap gap-10'>
 			{data.map((pet: Pet) => (
 				<PetCard key={pet.ID} pet={pet} />
 			))}
