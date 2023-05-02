@@ -15,7 +15,6 @@ const Header = () => {
 				/>
 			</div>
 			<div className='flex items-center'>
-				<button className='bg-blue-500 text-white py-2 px-4 rounded mr-2'>Meus Pets</button>
 				<button className='bg-blue-500 text-white py-2 px-4 rounded mr-2'>Perfil</button>
 				<button className='bg-red-400 text-white py-2 px-4 rounded mr-2' onClick={handleLogout}>
 					Sair

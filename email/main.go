@@ -15,7 +15,7 @@ import (
 
 type Post struct {
 	Address string `json:"address" binding:"required"`
-	PetName string `json:"petName" binding:"required"`
+	Content string `json:"content" binding:"required"`
 }
 
 func main() {
@@ -61,14 +61,14 @@ func main() {
 		htmlBody, err := os.ReadFile("template.html")
 		stringHtmlBody := string(htmlBody)
 
-		stringHtmlBody = strings.Replace(stringHtmlBody, "{{pet_name}}", post.PetName, 1)
+		stringHtmlBody = strings.Replace(stringHtmlBody, "{{content}}", post.Content, 1)
 
 		fmt.Println("send email to", post.Address, "with body", stringHtmlBody)
 
 		email := mail.NewMSG()
 		email.SetFrom("From Me <me@host.com>")
 		email.AddTo(post.Address)
-		email.SetSubject("Pet encontrado!")
+		email.SetSubject("Email sobre seu pet")
 		email.SetBody(mail.TextHTML, stringHtmlBody)
 
 		err = email.Send(smtpClient)
@@ -76,6 +76,10 @@ func main() {
 			log.Printf(err.Error())
 		}
 		fmt.Println("Email Sent Successfully!")
+
+		//close the connection
+		smtpClient.Close()
+
 	})
 
 	// Start server

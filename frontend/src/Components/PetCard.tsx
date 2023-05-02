@@ -45,9 +45,6 @@ const PetCard = (petProp: Pet) => {
 						<ListItemText primary={`Descrição: ${pet.Description}`} />
 					</ListItem>
 					<ListItem>
-						<ListItemText primary={`Localização: ${pet.Location}`} />
-					</ListItem>
-					<ListItem>
 						<Button
 							variant='outlined'
 							onClick={(e) => {

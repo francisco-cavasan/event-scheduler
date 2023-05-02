@@ -34,6 +34,12 @@ func (pc *PetController) Store(c *gin.Context) {
 	}
 
 	pc.DB.Create(&pet)
+	pc.DB.Preload("Owner").First(&pet, pet.ID)
+
+	content := "Your pet register has been created. Pet name is: " + pet.Name
+
+	Services.Handle(content, pet.Owner.Email)
+
 	c.JSON(http.StatusCreated, pet)
 }
 
@@ -76,7 +82,14 @@ func (pc *PetController) Delete(c *gin.Context) {
 		return
 	}
 
+	pc.DB.Preload("Owner").First(&pet, pet.ID)
+	ownerEmail := pet.Owner.Email
 	pc.DB.Delete(&pet)
+
+	content := "Your pet: " + pet.Name + " has been deleted."
+
+	Services.Handle(content, ownerEmail)
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -112,7 +125,8 @@ func (pc *PetController) AddPetFoundLocation(c *gin.Context) {
 	// }
 
 	// Send an email to the pet owner
-	Services.Handle(pet.Name, pet.Owner.Email)
+	content := "Your pet " + pet.Name + " has been found!"
+	Services.Handle(content, pet.Owner.Email)
 
 	c.JSON(http.StatusOK, gin.H{"message": "location added to pet"})
 }

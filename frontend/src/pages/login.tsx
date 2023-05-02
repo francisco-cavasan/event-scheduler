@@ -19,7 +19,7 @@ const LoginPage = () => {
 
 	if (isLogged) {
 		useEffect(() => {
-			Router.push('/login');
+			Router.push('/');
 		})
 	}
 

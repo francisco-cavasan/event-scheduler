@@ -42,7 +42,6 @@ func (ac *AuthController) Login(c *gin.Context) {
 }
 
 func (ac *AuthController) SignIn(email string, password string) (string, error) {
-
 	var err error
 
 	user := Models.User{}

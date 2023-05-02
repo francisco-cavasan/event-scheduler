@@ -52,7 +52,7 @@ func MigrateDatabaseSchema(db *gorm.DB) {
 			{Name: "Gatinho", Description: "Gatinho perdido", Age: "1", LostDate: "2022-03-10", FoundDate: "", Image_url: "https://www.petz.com.br/blog/wp-content/uploads/2021/11/enxoval-para-gato-Copia.jpg", OwnerID: users[0].ID},
 			{Name: "Passarinho", Description: "Passarinho perdido", Age: "5", LostDate: "2023-03-10", FoundDate: "", Image_url: "https://i.pinimg.com/736x/95/c2/c9/95c2c9c00992a7d283d02818e470ad56--tim-beta-goldfinch.jpg", OwnerID: users[1].ID},
 			{Name: "Jaguatirica", Description: "Jaguatirica perdida", Age: "3", LostDate: "", FoundDate: "2021-08-17", Image_url: "https://procarnivoros.org.br/wp-content/uploads/2020/06/jaguatirica-Leopardus-pardalis-adriano-gambarini.jpg", OwnerID: users[1].ID},
-			{Name: "Tartaruga", Description: "Tartaruga perdida", Age: "24", LostDate: "2020-05-28", FoundDate: "", Image_url: "https://img.olhardigital.com.br/wp-content/uploads/2022/06/jonathan-tartaruga.jpg", OwnerID: users[2].ID},
+			{Name: "Jabuti", Description: "Jabuti perdido", Age: "24", LostDate: "2020-05-28", FoundDate: "", Image_url: "https://img.olhardigital.com.br/wp-content/uploads/2022/06/jonathan-tartaruga.jpg", OwnerID: users[2].ID},
 		}
 
 		for _, pet := range pets {

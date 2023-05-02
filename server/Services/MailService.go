@@ -13,13 +13,13 @@ type PostBody struct {
 	PetName string `json:"petName"`
 }
 
-func Handle(petName string, address string) error {
+func Handle(content string, address string) error {
 	fmt.Println("send email to", address)
 	if address == "" {
 		return errors.New("address is required")
 	}
 	// Create the request body
-	postBody := []byte(`{"address":"` + address + `", "petName":"` + petName + `"}`)
+	postBody := []byte(`{"address":"` + address + `", "content":"` + content + `"}`)
 
 	// Create the POST request
 	request, err := http.NewRequest(http.MethodPost, "http://localhost:8081/send", bytes.NewBuffer(postBody))
